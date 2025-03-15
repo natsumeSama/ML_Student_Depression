@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OrdinalEncoder
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 import matplotlib.pyplot as plt
@@ -12,7 +14,6 @@ import seaborn as ss
 data = pd.read_csv("./data/Student Depression Dataset.csv")
 
 
-# Data cleaning
 def preprocess_data(df):
     """Take the data and preprocess it by removing non-pertinent columns and encoding the values so that it's numerical"""
     # Removing non-pertinent columns
@@ -63,7 +64,36 @@ def preprocess_data(df):
     return df
 
 
-data = preprocess_data(data)
-print(data.isnull().sum())
+def split_data(df):
+    """Spliting data between training and testing set"""
 
-data.info()
+    X = df.drop(columns=["Depression"])
+    Y = df["Depression"]
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        X, Y, test_size=0.2, random_state=42
+    )
+    return X_train, Y_train, X_test, Y_test
+
+
+def training(clf, X_train, Y_train, X_test, Y_test):
+
+    # Training
+    clf.fit(X_train, Y_train)
+    # Testing
+    Y_pred = clf.predict(X_test)
+    accuracy = accuracy_score(Y_test, Y_pred)
+    return clf, accuracy
+
+
+data = preprocess_data(data)
+# print(data.isnull().sum())
+
+# data.info()
+X_train, Y_train, X_test, Y_test = split_data(data)
+DT = DecisionTreeClassifier()
+RF = RandomForestClassifier(n_estimators=100, random_state=42)
+NN = MLPClassifier(hidden_layer_sizes=(10,), max_iter=1000, random_state=42)
+models = {"Decision Tree": DT, "Random Forest": RF, "Neural Network": NN}
+for key, clf in models.items():
+    clf, acurracy = training(clf, X_train, Y_train, X_test, Y_test)
+    print(f"{key} have {acurracy} score")
