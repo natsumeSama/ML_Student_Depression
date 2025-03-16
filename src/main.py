@@ -1,15 +1,14 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder, OrdinalEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OrdinalEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score
 
 import matplotlib.pyplot as plt
-import seaborn as ss
 
 data = pd.read_csv("./data/Student Depression Dataset.csv")
 
@@ -76,7 +75,7 @@ def split_data(df):
 
 
 def training(clf, X_train, Y_train, X_test, Y_test):
-
+    """Train and test the classifier clf with the training and testing set in the parameters"""
     # Training
     clf.fit(X_train, Y_train)
     # Testing
@@ -85,15 +84,50 @@ def training(clf, X_train, Y_train, X_test, Y_test):
     return clf, accuracy
 
 
-data = preprocess_data(data)
-# print(data.isnull().sum())
+def accuracy(models, accuracy_scores):
+    """Calculate the Accuracy Scores of all the models in models"""
+    for key, clf in models.items():
+        clf, acurracy = training(clf, X_train, Y_train, X_test, Y_test)
+        accuracy_scores.append(acurracy)
+        print(f"{key} have {acurracy} score")
 
-# data.info()
+
+def plot(models, accuracy_scores):
+    """Draw a Bar chart comparing each models based on it's accuracy score"""
+    plt.figure(figsize=(10, 8))
+    plt.bar(
+        models.keys(),
+        accuracy_scores,
+        color=["skyblue", "lightgreen", "salmon", "orange"],
+    )
+
+    plt.title("Accuracy Score Comparaison")
+    plt.xlabel("Models")
+    plt.ylabel("Accuracy Score")
+    plt.ylim(0, 1)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+    for i, score in enumerate(accuracy_scores):
+        plt.text(i, score + 0.01, f"{score:.2f}", ha="center")
+
+    plt.show()
+
+
+data = preprocess_data(data)
+
 X_train, Y_train, X_test, Y_test = split_data(data)
-DT = DecisionTreeClassifier()
+# Creating classifiers
+DT = DecisionTreeClassifier(criterion="entropy", random_state=42)
+DTP = DecisionTreeClassifier(max_depth=7, random_state=42)
 RF = RandomForestClassifier(n_estimators=100, random_state=42)
 NN = MLPClassifier(hidden_layer_sizes=(10,), max_iter=1000, random_state=42)
-models = {"Decision Tree": DT, "Random Forest": RF, "Neural Network": NN}
-for key, clf in models.items():
-    clf, acurracy = training(clf, X_train, Y_train, X_test, Y_test)
-    print(f"{key} have {acurracy} score")
+accuracy_scores = []
+models = {
+    "Decision Tree": DT,
+    "Decision Tree Pruned": DTP,
+    "Random Forest": RF,
+    "Neural Network": NN,
+}
+
+accuracy(models, accuracy_scores)
+plot(models, accuracy_scores)

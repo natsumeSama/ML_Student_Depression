@@ -9,7 +9,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../src"))
+sys.path.insert(0, os.path.abspath("./src"))
 
 
 project = "ML_project"
@@ -19,7 +19,11 @@ author = "Yudas Rafik AISSANI"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "numpydoc"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",  # Supporte les docstrings de style Google et NumPy
+    "sphinx.ext.viewcode",  # Ajoute des liens vers le code source
+]
 
 
 templates_path = ["_templates"]
