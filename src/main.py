@@ -15,8 +15,20 @@ data = pd.read_csv("./data/Student Depression Dataset.csv")
 
 
 def preprocess_data(df):
-    """Clean and preprocess the dataset by removing irrelevant columns,
-    handling missing values, and encoding categorical variables."""
+    """
+    Preprocess the input dataset by performing cleaning and feature engineering.
+
+    Operations include:
+    - Dropping irrelevant or redundant columns.
+    - Handling missing values by imputing the mean for numerical features.
+    - Encoding categorical variables using ordinal encoding with predefined category orderings.
+
+    Parameters:
+    df (pd.DataFrame): The raw input dataset.
+
+    Returns:
+    pd.DataFrame: The cleaned and preprocessed dataset ready for model training.
+    """
 
     # Remove irrelevant columns
     df.drop(
@@ -71,7 +83,17 @@ def preprocess_data(df):
 
 
 def split_data(df):
-    """Split the dataset into training and testing sets."""
+    """
+    Split the dataset into training and testing subsets.
+
+    Separates features and target labels, and performs an 80/20 train-test split with a fixed random state for reproducibility.
+
+    Parameters:
+    df (pd.DataFrame): The preprocessed dataset.
+
+    Returns:
+    tuple: (X_train, Y_train, X_test, Y_test)
+    """
 
     X = df.drop(columns=["Depression"])
     Y = df["Depression"]
@@ -82,7 +104,21 @@ def split_data(df):
 
 
 def training(clf, X_train, Y_train, X_test, Y_test):
-    """Train the classifier and evaluate its performance on the test set."""
+    """
+    Train the given classifier on the training set and evaluate its performance on the test set.
+
+    Computes the accuracy score and confusion matrix based on the model's predictions.
+
+    Parameters:
+    clf (object): A scikit-learn compatible classifier.
+    X_train (pd.DataFrame): Training feature set.
+    Y_train (pd.Series): Training labels.
+    X_test (pd.DataFrame): Testing feature set.
+    Y_test (pd.Series): Testing labels.
+
+    Returns:
+    tuple: (trained classifier, accuracy score, confusion matrix)
+    """
 
     clf.fit(X_train, Y_train)
     Y_pred = clf.predict(X_test)
@@ -92,7 +128,19 @@ def training(clf, X_train, Y_train, X_test, Y_test):
 
 
 def accuracy(models, accuracy_scores, confusion_matrixs):
-    """Train and evaluate all classifiers, collecting their accuracy and confusion matrices."""
+    """
+    Train and evaluate a collection of classifiers, recording their accuracy scores and confusion matrices.
+
+    Iterates through each model, fits it to the training data, evaluates it, and stores the results.
+
+    Parameters:
+    models (dict): Dictionary of model names and corresponding classifier instances.
+    accuracy_scores (list): List to store the accuracy scores of each model.
+    confusion_matrixs (list): List to store the confusion matrices of each model.
+
+    Returns:
+    None
+    """
 
     for key, clf in models.items():
         clf, acurracy, cm = training(clf, X_train, Y_train, X_test, Y_test)
@@ -102,7 +150,16 @@ def accuracy(models, accuracy_scores, confusion_matrixs):
 
 
 def plot_accuracy_bar(models, accuracy_scores):
-    """Display a bar plot comparing the accuracy scores of different models."""
+    """
+    Generate a bar plot to visualize and compare the accuracy scores of different classifiers.
+
+    Parameters:
+    models (dict): Dictionary of model names.
+    accuracy_scores (list): List of accuracy scores corresponding to the models.
+
+    Returns:
+    None
+    """
 
     plt.figure(figsize=(10, 6))
     plt.bar(
@@ -124,7 +181,18 @@ def plot_accuracy_bar(models, accuracy_scores):
 
 
 def plot_confusion_matrices(models, confusion_matrixs):
-    """Display one confusion matrix per model, with aligned labels and titles."""
+    """
+    Plot the confusion matrices for each trained model side-by-side.
+
+    Each confusion matrix is displayed with annotated cell values and labeled axes for clarity.
+
+    Parameters:
+    models (dict): Dictionary of model names.
+    confusion_matrixs (list): List of confusion matrices corresponding to the models.
+
+    Returns:
+    None
+    """
 
     import matplotlib.patheffects as path_effects
 
@@ -213,7 +281,20 @@ def plot_confusion_matrices(models, confusion_matrixs):
 
 
 def plot(models, accuracy_scores, confusion_matrixs):
-    """Run both the accuracy bar plot and the confusion matrix display."""
+    """
+    Generate visualizations summarizing model performance.
+
+    Produces both a bar chart comparing accuracy scores and confusion matrix plots for each classifier.
+
+    Parameters:
+    models (dict): Dictionary of model names.
+    accuracy_scores (list): List of accuracy scores for the models.
+    confusion_matrixs (list): List of confusion matrices for the models.
+
+    Returns:
+    None
+    """
+
     plot_accuracy_bar(models, accuracy_scores)
     plot_confusion_matrices(models, confusion_matrixs)
 

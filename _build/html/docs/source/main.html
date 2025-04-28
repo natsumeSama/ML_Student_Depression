@@ -45,6 +45,8 @@
 <li><a class="reference internal" href="#">main module</a><ul>
 <li><a class="reference internal" href="#main.accuracy"><code class="docutils literal notranslate"><span class="pre">accuracy()</span></code></a></li>
 <li><a class="reference internal" href="#main.plot"><code class="docutils literal notranslate"><span class="pre">plot()</span></code></a></li>
+<li><a class="reference internal" href="#main.plot_accuracy_bar"><code class="docutils literal notranslate"><span class="pre">plot_accuracy_bar()</span></code></a></li>
+<li><a class="reference internal" href="#main.plot_confusion_matrices"><code class="docutils literal notranslate"><span class="pre">plot_confusion_matrices()</span></code></a></li>
 <li><a class="reference internal" href="#main.preprocess_data"><code class="docutils literal notranslate"><span class="pre">preprocess_data()</span></code></a></li>
 <li><a class="reference internal" href="#main.split_data"><code class="docutils literal notranslate"><span class="pre">split_data()</span></code></a></li>
 <li><a class="reference internal" href="#main.training"><code class="docutils literal notranslate"><span class="pre">training()</span></code></a></li>
@@ -80,32 +82,91 @@
 <span id="main-module"></span><h1>main module<a class="headerlink" href="#module-main" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="main.accuracy">
-<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#accuracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.accuracy" title="Link to this definition"></a></dt>
-<dd><p>Calculate the Accuracy Scores of all the models in models</p>
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confusion_matrixs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#accuracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.accuracy" title="Link to this definition"></a></dt>
+<dd><p>Train and evaluate a collection of classifiers, recording their accuracy scores and confusion matrices.</p>
+<p>Iterates through each model, fits it to the training data, evaluates it, and stores the results.</p>
+<p>Parameters:
+models (dict): Dictionary of model names and corresponding classifier instances.
+accuracy_scores (list): List to store the accuracy scores of each model.
+confusion_matrixs (list): List to store the confusion matrices of each model.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="main.plot">
-<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.plot" title="Link to this definition"></a></dt>
-<dd><p>Draw a Bar chart comparing each models based on it’s accuracy score</p>
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confusion_matrixs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.plot" title="Link to this definition"></a></dt>
+<dd><p>Generate visualizations summarizing model performance.</p>
+<p>Produces both a bar chart comparing accuracy scores and confusion matrix plots for each classifier.</p>
+<p>Parameters:
+models (dict): Dictionary of model names.
+accuracy_scores (list): List of accuracy scores for the models.
+confusion_matrixs (list): List of confusion matrices for the models.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="main.plot_accuracy_bar">
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">plot_accuracy_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy_scores</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#plot_accuracy_bar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.plot_accuracy_bar" title="Link to this definition"></a></dt>
+<dd><p>Generate a bar plot to visualize and compare the accuracy scores of different classifiers.</p>
+<p>Parameters:
+models (dict): Dictionary of model names.
+accuracy_scores (list): List of accuracy scores corresponding to the models.</p>
+<p>Returns:
+None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="main.plot_confusion_matrices">
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">plot_confusion_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confusion_matrixs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#plot_confusion_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.plot_confusion_matrices" title="Link to this definition"></a></dt>
+<dd><p>Plot the confusion matrices for each trained model side-by-side.</p>
+<p>Each confusion matrix is displayed with annotated cell values and labeled axes for clarity.</p>
+<p>Parameters:
+models (dict): Dictionary of model names.
+confusion_matrixs (list): List of confusion matrices corresponding to the models.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="main.preprocess_data">
 <span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">preprocess_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#preprocess_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.preprocess_data" title="Link to this definition"></a></dt>
-<dd><p>Take the data and preprocess it by removing non-pertinent columns and encoding the values so that it’s numerical</p>
+<dd><p>Preprocess the input dataset by performing cleaning and feature engineering.</p>
+<p>Operations include:
+- Dropping irrelevant or redundant columns.
+- Handling missing values by imputing the mean for numerical features.
+- Encoding categorical variables using ordinal encoding with predefined category orderings.</p>
+<p>Parameters:
+df (pd.DataFrame): The raw input dataset.</p>
+<p>Returns:
+pd.DataFrame: The cleaned and preprocessed dataset ready for model training.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="main.split_data">
 <span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">split_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#split_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.split_data" title="Link to this definition"></a></dt>
-<dd><p>Spliting data between training and testing set</p>
+<dd><p>Split the dataset into training and testing subsets.</p>
+<p>Separates features and target labels, and performs an 80/20 train-test split with a fixed random state for reproducibility.</p>
+<p>Parameters:
+df (pd.DataFrame): The preprocessed dataset.</p>
+<p>Returns:
+tuple: (X_train, Y_train, X_test, Y_test)</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="main.training">
 <span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_test</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/main.html#training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.training" title="Link to this definition"></a></dt>
-<dd><p>Train and test the classifier clf with the training and testing set in the parameters</p>
+<dd><p>Train the given classifier on the training set and evaluate its performance on the test set.</p>
+<p>Computes the accuracy score and confusion matrix based on the model’s predictions.</p>
+<p>Parameters:
+clf (object): A scikit-learn compatible classifier.
+X_train (pd.DataFrame): Training feature set.
+Y_train (pd.Series): Training labels.
+X_test (pd.DataFrame): Testing feature set.
+Y_test (pd.Series): Testing labels.</p>
+<p>Returns:
+tuple: (trained classifier, accuracy score, confusion matrix)</p>
 </dd></dl>
 
 </section>

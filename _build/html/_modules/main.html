@@ -74,18 +74,33 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.neural_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLPClassifier</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">ConfusionMatrixDisplay</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
+<span class="c1"># Load the dataset</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./data/Student Depression Dataset.csv&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="preprocess_data">
 <a class="viewcode-back" href="../docs/source/main.html#main.preprocess_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_data</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take the data and preprocess it by removing non-pertinent columns and encoding the values so that it&#39;s numerical&quot;&quot;&quot;</span>
-    <span class="c1"># Removing non-pertinent columns</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocess the input dataset by performing cleaning and feature engineering.</span>
+
+<span class="sd">    Operations include:</span>
+<span class="sd">    - Dropping irrelevant or redundant columns.</span>
+<span class="sd">    - Handling missing values by imputing the mean for numerical features.</span>
+<span class="sd">    - Encoding categorical variables using ordinal encoding with predefined category orderings.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    df (pd.DataFrame): The raw input dataset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    pd.DataFrame: The cleaned and preprocessed dataset ready for model training.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Remove irrelevant columns</span>
     <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
             <span class="s2">&quot;id&quot;</span><span class="p">,</span>
@@ -98,11 +113,13 @@
         <span class="p">],</span>
         <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># Filling the missing values</span>
+
+    <span class="c1"># Fill missing values with the mean</span>
     <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Financial Stress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Financial Stress&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Financial Stress&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="c1"># Encoding data</span>
+
+    <span class="c1"># Encode categorical variables using ordinal encoding</span>
     <span class="n">numerical_columns</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;Academic Pressure&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Work Pressure&quot;</span><span class="p">,</span>
@@ -111,6 +128,7 @@
         <span class="s2">&quot;Work/Study Hours&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Financial Stress&quot;</span><span class="p">,</span>
     <span class="p">]</span>
+
     <span class="n">ordinal_columns</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;Sleep Duration&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">&quot;Less than 5 hours&quot;</span><span class="p">,</span>
@@ -123,6 +141,7 @@
         <span class="s2">&quot;Family History of Mental Illness&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;No&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">],</span>
         <span class="s2">&quot;Dietary Habits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Unhealthy&quot;</span><span class="p">,</span> <span class="s2">&quot;Moderate&quot;</span><span class="p">,</span> <span class="s2">&quot;Healthy&quot;</span><span class="p">,</span> <span class="s2">&quot;Others&quot;</span><span class="p">],</span>
     <span class="p">}</span>
+
     <span class="n">ordinal_encoder</span> <span class="o">=</span> <span class="n">OrdinalEncoder</span><span class="p">(</span>
         <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="n">ordinal_columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">ordinal_columns</span><span class="p">]</span>
     <span class="p">)</span>
@@ -137,7 +156,17 @@
 <div class="viewcode-block" id="split_data">
 <a class="viewcode-back" href="../docs/source/main.html#main.split_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">split_data</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spliting data between training and testing set&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split the dataset into training and testing subsets.</span>
+
+<span class="sd">    Separates features and target labels, and performs an 80/20 train-test split with a fixed random state for reproducibility.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    df (pd.DataFrame): The preprocessed dataset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    tuple: (X_train, Y_train, X_test, Y_test)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Depression&quot;</span><span class="p">])</span>
     <span class="n">Y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Depression&quot;</span><span class="p">]</span>
@@ -151,60 +180,228 @@
 <div class="viewcode-block" id="training">
 <a class="viewcode-back" href="../docs/source/main.html#main.training">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">training</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Train and test the classifier clf with the training and testing set in the parameters&quot;&quot;&quot;</span>
-    <span class="c1"># Training</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Train the given classifier on the training set and evaluate its performance on the test set.</span>
+
+<span class="sd">    Computes the accuracy score and confusion matrix based on the model&#39;s predictions.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    clf (object): A scikit-learn compatible classifier.</span>
+<span class="sd">    X_train (pd.DataFrame): Training feature set.</span>
+<span class="sd">    Y_train (pd.Series): Training labels.</span>
+<span class="sd">    X_test (pd.DataFrame): Testing feature set.</span>
+<span class="sd">    Y_test (pd.Series): Testing labels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    tuple: (trained classifier, accuracy score, confusion matrix)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
-    <span class="c1"># Testing</span>
     <span class="n">Y_pred</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
     <span class="n">accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">Y_test</span><span class="p">,</span> <span class="n">Y_pred</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">accuracy</span></div>
+    <span class="n">cm</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">Y_test</span><span class="p">,</span> <span class="n">Y_pred</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clf</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">cm</span></div>
 
 
 
 <div class="viewcode-block" id="accuracy">
 <a class="viewcode-back" href="../docs/source/main.html#main.accuracy">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">accuracy</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the Accuracy Scores of all the models in models&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">accuracy</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">,</span> <span class="n">confusion_matrixs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Train and evaluate a collection of classifiers, recording their accuracy scores and confusion matrices.</span>
+
+<span class="sd">    Iterates through each model, fits it to the training data, evaluates it, and stores the results.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    models (dict): Dictionary of model names and corresponding classifier instances.</span>
+<span class="sd">    accuracy_scores (list): List to store the accuracy scores of each model.</span>
+<span class="sd">    confusion_matrixs (list): List to store the confusion matrices of each model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">clf</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">clf</span><span class="p">,</span> <span class="n">acurracy</span> <span class="o">=</span> <span class="n">training</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)</span>
+        <span class="n">clf</span><span class="p">,</span> <span class="n">acurracy</span><span class="p">,</span> <span class="n">cm</span> <span class="o">=</span> <span class="n">training</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)</span>
         <span class="n">accuracy_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acurracy</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> have </span><span class="si">{</span><span class="n">acurracy</span><span class="si">}</span><span class="s2"> score&quot;</span><span class="p">)</span></div>
+        <span class="n">confusion_matrixs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> has an accuracy score of </span><span class="si">{</span><span class="n">acurracy</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="plot">
-<a class="viewcode-back" href="../docs/source/main.html#main.plot">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw a Bar chart comparing each models based on it&#39;s accuracy score&quot;&quot;&quot;</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<div class="viewcode-block" id="plot_accuracy_bar">
+<a class="viewcode-back" href="../docs/source/main.html#main.plot_accuracy_bar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_accuracy_bar</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a bar plot to visualize and compare the accuracy scores of different classifiers.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    models (dict): Dictionary of model names.</span>
+<span class="sd">    accuracy_scores (list): List of accuracy scores corresponding to the models.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
         <span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
         <span class="n">accuracy_scores</span><span class="p">,</span>
         <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;skyblue&quot;</span><span class="p">,</span> <span class="s2">&quot;lightgreen&quot;</span><span class="p">,</span> <span class="s2">&quot;salmon&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">],</span>
     <span class="p">)</span>
-
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Accuracy Score Comparaison&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Accuracy Score Comparison&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Models&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Accuracy Score&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">accuracy_scores</span><span class="p">):</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">score</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">score</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
 
+<div class="viewcode-block" id="plot_confusion_matrices">
+<a class="viewcode-back" href="../docs/source/main.html#main.plot_confusion_matrices">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_confusion_matrices</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">confusion_matrixs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the confusion matrices for each trained model side-by-side.</span>
+
+<span class="sd">    Each confusion matrix is displayed with annotated cell values and labeled axes for clarity.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    models (dict): Dictionary of model names.</span>
+<span class="sd">    confusion_matrixs (list): List of confusion matrices corresponding to the models.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patheffects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">path_effects</span>
+
+    <span class="n">num_models</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_models</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span> <span class="o">*</span> <span class="n">num_models</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">num_models</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">axes</span><span class="p">]</span>  <span class="c1"># Ensure axes is iterable even with a single model</span>
+
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cm</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">confusion_matrixs</span><span class="p">)):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+        <span class="c1"># Remove tick marks</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+        <span class="c1"># Display cell values</span>
+        <span class="n">thresh</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="n">k</span><span class="p">,</span>
+                    <span class="n">j</span><span class="p">,</span>
+                    <span class="nb">format</span><span class="p">(</span><span class="n">cm</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="s2">&quot;d&quot;</span><span class="p">),</span>
+                    <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                    <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span> <span class="k">if</span> <span class="n">cm</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                    <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span>
+                    <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">path_effects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Column labels (top)</span>
+        <span class="n">col_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;No Depression&quot;</span><span class="p">,</span> <span class="s2">&quot;Depression&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">col_labels</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="n">idx</span><span class="p">,</span>
+                <span class="o">-</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Row labels (left)</span>
+        <span class="n">row_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;No Depression&quot;</span><span class="p">,</span> <span class="s2">&quot;Depression&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row_labels</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="o">-</span><span class="mf">0.9</span><span class="p">,</span>
+                <span class="n">idx</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># &quot;Predicted&quot; label centered below the model title</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="o">-</span><span class="mf">1.7</span><span class="p">,</span>
+            <span class="s2">&quot;Predicted&quot;</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+            <span class="n">fontstyle</span><span class="o">=</span><span class="s2">&quot;italic&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># &quot;True&quot; label on the left, vertically centered</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="o">-</span><span class="mf">1.8</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s2">&quot;True&quot;</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+            <span class="n">fontstyle</span><span class="o">=</span><span class="s2">&quot;italic&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="plot">
+<a class="viewcode-back" href="../docs/source/main.html#main.plot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">,</span> <span class="n">confusion_matrixs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate visualizations summarizing model performance.</span>
+
+<span class="sd">    Produces both a bar chart comparing accuracy scores and confusion matrix plots for each classifier.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    models (dict): Dictionary of model names.</span>
+<span class="sd">    accuracy_scores (list): List of accuracy scores for the models.</span>
+<span class="sd">    confusion_matrixs (list): List of confusion matrices for the models.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">plot_accuracy_bar</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">)</span>
+    <span class="n">plot_confusion_matrices</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">confusion_matrixs</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Preprocessing, training and plotting pipeline</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">preprocess_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
 <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span> <span class="o">=</span> <span class="n">split_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="c1"># Creating classifiers</span>
+
+<span class="c1"># Create classifiers</span>
 <span class="n">DT</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;entropy&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">DTP</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">RF</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">NN</span> <span class="o">=</span> <span class="n">MLPClassifier</span><span class="p">(</span><span class="n">hidden_layer_sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,),</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
 <span class="n">accuracy_scores</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">confusion_matrixs</span> <span class="o">=</span> <span class="p">[]</span>
+
 <span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;Decision Tree&quot;</span><span class="p">:</span> <span class="n">DT</span><span class="p">,</span>
     <span class="s2">&quot;Decision Tree Pruned&quot;</span><span class="p">:</span> <span class="n">DTP</span><span class="p">,</span>
@@ -212,8 +409,9 @@
     <span class="s2">&quot;Neural Network&quot;</span><span class="p">:</span> <span class="n">NN</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">accuracy</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">)</span>
+<span class="c1"># Evaluate and visualize</span>
+<span class="n">accuracy</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">,</span> <span class="n">confusion_matrixs</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">accuracy_scores</span><span class="p">,</span> <span class="n">confusion_matrixs</span><span class="p">)</span>
 </pre></div>
 
            </div>
