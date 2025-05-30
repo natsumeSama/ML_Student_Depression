@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+
 
 import matplotlib.pyplot as plt
 
@@ -123,15 +124,16 @@ def training(clf, X_train, Y_train, X_test, Y_test):
     clf.fit(X_train, Y_train)
     Y_pred = clf.predict(X_test)
     accuracy = accuracy_score(Y_test, Y_pred)
+    cross_accuracy = cross_val_score(clf, X_train, Y_train, cv=5, scoring="accuracy")
     cm = confusion_matrix(Y_test, Y_pred)
-    return clf, accuracy, cm
+    return clf, accuracy, cross_accuracy, cm
 
 
-def accuracy(models, accuracy_scores, confusion_matrixs):
+def accuracy(models, accuracy_scores, cross_accuracy_scores, confusion_matrixs):
     """
     Train and evaluate a collection of classifiers, recording their accuracy scores and confusion matrices.
 
-    Iterates through each model, fits it to the training data, evaluates it, and stores the results.
+    Also performs cross-validation to get a more reliable estimate of accuracy.
 
     Parameters:
     models (dict): Dictionary of model names and corresponding classifier instances.
@@ -143,10 +145,16 @@ def accuracy(models, accuracy_scores, confusion_matrixs):
     """
 
     for key, clf in models.items():
-        clf, acurracy, cm = training(clf, X_train, Y_train, X_test, Y_test)
-        accuracy_scores.append(acurracy)
+        # Train and evaluate with the existing test set
+        clf, test_acc, cross_score, cm = training(clf, X_train, Y_train, X_test, Y_test)
+        accuracy_scores.append(test_acc)
+        cross_accuracy_scores.append(cross_score)
         confusion_matrixs.append(cm)
-        print(f"{key} has an accuracy score of {acurracy:.2f}")
+
+        # Perform 5-fold cross-validation on the full training data
+        print(
+            f"{key} - Test Accuracy: {test_acc:.2f} | Cross-Val Accuracy: {cross_score.mean():.2f} ± {cross_score.std():.2f}"
+        )
 
 
 def plot_accuracy_bar(models, accuracy_scores):
@@ -165,7 +173,7 @@ def plot_accuracy_bar(models, accuracy_scores):
     plt.bar(
         models.keys(),
         accuracy_scores,
-        color=["skyblue", "lightgreen", "salmon", "orange"],
+        color=["skyblue", "lightgreen", "salmon", "orange", "violet"],
     )
     plt.title("Accuracy Score Comparison", fontsize=16)
     plt.xlabel("Models")
@@ -174,6 +182,40 @@ def plot_accuracy_bar(models, accuracy_scores):
     plt.grid(axis="y", linestyle="--", alpha=0.7)
 
     for i, score in enumerate(accuracy_scores):
+        plt.text(i, score + 0.01, f"{score:.2f}", ha="center", fontsize=12)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_cross_accuracy_bar(models, cross_accuracy_scores):
+    """
+    Generate a bar plot to visualize and compare the cross-validation accuracy scores of different classifiers.
+
+    Parameters:
+    models (dict): Dictionary of model names.
+    cross_accuracy_scores (list): List of cross-validation accuracy arrays (one per model).
+
+    Returns:
+    None
+    """
+
+    model_names = list(models.keys())
+    mean_scores = [scores.mean() for scores in cross_accuracy_scores]
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(
+        model_names,
+        mean_scores,
+        color=["skyblue", "lightgreen", "salmon", "orange", "violet"],
+    )
+    plt.title("Cross-Validation Accuracy Comparison", fontsize=16)
+    plt.xlabel("Models")
+    plt.ylabel("Mean Accuracy (5-Fold CV)")
+    plt.ylim(0, 1)
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+
+    for i, score in enumerate(mean_scores):
         plt.text(i, score + 0.01, f"{score:.2f}", ha="center", fontsize=12)
 
     plt.tight_layout()
@@ -296,6 +338,7 @@ def plot(models, accuracy_scores, confusion_matrixs):
     """
 
     plot_accuracy_bar(models, accuracy_scores)
+    plot_cross_accuracy_bar(models, cross_accuracy_scores)
     plot_confusion_matrices(models, confusion_matrixs)
 
 
@@ -309,8 +352,11 @@ DT = DecisionTreeClassifier(criterion="entropy", random_state=42)
 DTP = DecisionTreeClassifier(max_depth=7, random_state=42)
 RF = RandomForestClassifier(n_estimators=100, random_state=42)
 NN = MLPClassifier(hidden_layer_sizes=(10,), max_iter=1000, random_state=42)
+DNN = MLPClassifier(hidden_layer_sizes=(64, 32, 16), max_iter=1000, random_state=42)
+
 
 accuracy_scores = []
+cross_accuracy_scores = []
 confusion_matrixs = []
 
 models = {
@@ -318,8 +364,10 @@ models = {
     "Decision Tree Pruned": DTP,
     "Random Forest": RF,
     "Neural Network": NN,
+    "Deep Neural Network": DNN,
 }
 
+
 # Evaluate and visualize
-accuracy(models, accuracy_scores, confusion_matrixs)
+accuracy(models, accuracy_scores, cross_accuracy_scores, confusion_matrixs)
 plot(models, accuracy_scores, confusion_matrixs)
